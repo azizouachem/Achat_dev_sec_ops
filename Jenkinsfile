@@ -27,7 +27,7 @@ pipeline {
     stages {
         stage('Initialize') {
             steps {
-                withCredentials([string(credentialsId: 'nexus-credentials', variable: 'NEXUS_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USER')]) {
                     script {
                         // This makes the password available for the whole pipeline session
                         env.NEXUS_PASSWORD = NEXUS_PASSWORD
