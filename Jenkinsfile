@@ -37,49 +37,34 @@ pipeline {
         // ── 2. Build ─────────────────────────────────────────────────────
         stage('Build') {
             steps {
-                echo '🔨 Building project with Maven (skip tests here, run separately)...'
-                sh 'mvn clean package -DskipTests'
-            }
-            post {
-                success { echo '✅ Build succeeded.' }
-                failure { echo '❌ Build failed.' }
+                echo '🔨 Building project...'
+                sh 'mvn -s settings.xml clean package -DskipTests'
             }
         }
 
         // ── 3. Unit Tests ─────────────────────────────────────────────────
         stage('Unit Tests') {
             steps {
-                echo '🧪 Running JUnit tests with JaCoCo coverage...'
-                sh 'mvn test'
+                echo '🧪 Running JUnit tests...'
+                sh 'mvn -s settings.xml test'
             }
             post {
                 always {
-                    // Publish JUnit test results
                     junit 'target/surefire-reports/*.xml'
-                    // Publish JaCoCo coverage report
                     jacoco(
-                        execPattern:         'target/jacoco.exec',
-                        classPattern:        'target/classes',
-                        sourcePattern:       'src/main/java',
-                        exclusionPattern:    '**/*Test*,**/entities/**,**/repositories/**'
+                        execPattern: 'target/jacoco.exec',
+                        classPattern: 'target/classes',
+                        sourcePattern: 'src/main/java'
                     )
                 }
-                failure { echo '❌ Tests failed.' }
             }
         }
 
         // ── 4. SonarQube Analysis ─────────────────────────────────────────
         stage('Code Quality – SonarQube') {
             steps {
-                echo '🔍 Running SonarQube analysis...'
-                withSonarQubeEnv("${SONAR_SERVER}") {
-                    sh '''
-                        mvn sonar:sonar \
-                          -Dsonar.projectKey=achat \
-                          -Dsonar.projectName="Achat Application" \
-                          -Dsonar.projectVersion=1.0 \
-                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                    '''
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn -s settings.xml sonar:sonar'
                 }
             }
         }
@@ -98,30 +83,27 @@ pipeline {
         stage('Publish Artifact – Nexus') {
             steps {
                 echo '📦 Publishing JAR to Nexus...'
-                script {
-                    def pom       = readMavenPom file: 'pom.xml'
-                    def artifactPath = "target/${pom.artifactId}-${pom.version}.jar"
+                withCredentials([string(credentialsId: 'nexus-credentials', variable: 'NEXUS_PASSWORD')]) {
+                    script {
+                        def pom       = readMavenPom file: 'pom.xml'
+                        def artifactPath = "target/${pom.artifactId}-${pom.version}.jar"
 
-                    nexusArtifactUploader(
-                        nexusVersion:  env.NEXUS_VERSION,
-                        protocol:      env.NEXUS_PROTOCOL,
-                        nexusUrl:      env.NEXUS_URL,
-                        groupId:       pom.groupId,
-                        version:       pom.version,
-                        repository:    env.NEXUS_REPO,
-                        credentialsId: env.NEXUS_CREDENTIAL,
-                        artifacts: [[
-                            artifactId: pom.artifactId,
-                            classifier: '',
-                            file:       artifactPath,
-                            type:       'jar'
-                        ],[
-                            artifactId: pom.artifactId,
-                            classifier: '',
-                            file:       'pom.xml',
-                            type:       'pom'
-                        ]]
-                    )
+                        nexusArtifactUploader(
+                            nexusVersion:  env.NEXUS_VERSION,
+                            protocol:      env.NEXUS_PROTOCOL,
+                            nexusUrl:      env.NEXUS_URL,
+                            groupId:       pom.groupId,
+                            version:       pom.version,
+                            repository:    env.NEXUS_REPO,
+                            credentialsId: env.NEXUS_CREDENTIAL,
+                            artifacts: [[
+                                artifactId: pom.artifactId,
+                                classifier: '',
+                                file:       artifactPath,
+                                type:       'jar'
+                            ]]
+                        )
+                    }
                 }
             }
         }
