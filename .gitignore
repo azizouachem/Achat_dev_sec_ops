@@ -1,0 +1,55 @@
+## Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.jar
+*.war
+*.ear
+
+## IDE – Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+## IDE – IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+## IDE – NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+## IDE – VS Code
+.vscode/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Sensitive / secrets – NEVER commit these
+application-prod.properties
+application-secret.properties
+*.env
+.env*
+secrets/
+
+## Logs
+logs/
+*.log
+
+## Docker local overrides
+docker-compose.override.yml

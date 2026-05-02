@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+
+  # ── Jenkins ─────────────────────────────────────────────────────────────
+  jenkins:
+    image: jenkins/jenkins:latest
+    container_name: jenkins
+    restart: unless-stopped
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"       # Jenkins Web UI
+      - "50000:50000"     # Jenkins agent port
+    volumes:
+      - jenkins_home:/var/jenkins_home          # Persistent Jenkins data
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker-in-Docker (build images from pipeline)
+    environment:
+      - JAVA_OPTS=-Xmx512m
+    networks:
+      - devops-net
+
+  # ── SonarQube ────────────────────────────────────────────────────────────
+  sonarqube:
+    image: sonarqube:9.9-community
+    container_name: sonarqube
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://sonar-db:5432/sonar
+      - SONAR_JDBC_USERNAME=sonar
+      - SONAR_JDBC_PASSWORD=sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    depends_on:
+      - sonar-db
+    networks:
+      - devops-net
+
+  sonar-db:
+    image: postgres:13
+    container_name: sonar-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+      - POSTGRES_DB=sonar
+    volumes:
+      - sonardb_data:/var/lib/postgresql/data
+    networks:
+      - devops-net
+
+  # ── Nexus ────────────────────────────────────────────────────────────────
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: nexus
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    volumes:
+      - nexus_data:/nexus-data
+    networks:
+      - devops-net
+
+  # ── MySQL (for the Achat application) ────────────────────────────────────
+  mysql:
+    image: mysql:5.7
+    container_name: achat-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=achatdb
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - devops-net
+
+volumes:
+  jenkins_home:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  sonardb_data:
+  nexus_data:
+  mysql_data:
+
+networks:
+  devops-net:
+    driver: bridge

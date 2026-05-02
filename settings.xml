@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Maven settings.xml – used by Jenkins pipeline
+  Place this in the Jenkins container at: /root/.m2/settings.xml
+  OR reference it in the pipeline with: mvn -s settings.xml ...
+
+  The <id> values MUST match the <id> in pom.xml distributionManagement.
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <servers>
+    <!-- Nexus Releases – must match pom.xml <repository><id>nexus-releases</id> -->
+    <server>
+      <id>nexus-releases</id>
+      <username>admin</username>
+      <password>${env.NEXUS_PASSWORD}</password>  <!-- Set as Jenkins env variable -->
+    </server>
+
+    <!-- Nexus Snapshots – must match pom.xml <snapshotRepository><id>nexus-snapshots</id> -->
+    <server>
+      <id>nexus-snapshots</id>
+      <username>admin</username>
+      <password>${env.NEXUS_PASSWORD}</password>
+    </server>
+  </servers>
+
+  <mirrors>
+    <!-- Route all Maven downloads through Nexus proxy (optional but good practice) -->
+    <mirror>
+      <id>nexus-central</id>
+      <mirrorOf>central</mirrorOf>
+      <url>http://nexus:8081/repository/maven-central/</url>
+    </mirror>
+  </mirrors>
+
+</settings>
