@@ -151,7 +151,7 @@ pipeline {
         }
     }
 
-    // ── Post-pipeline notifications ───────────────────────────────────────
+    // ── Post-pipeline cleanup ─────────────────────────────────────────────
     post {
         always {
             echo '🧹 Cleaning workspace...'
@@ -159,19 +159,9 @@ pipeline {
         }
         success {
             echo '🎉 Pipeline completed successfully!'
-            mail(
-                to:      'team@example.com',
-                subject: "✅ [Jenkins] Build #${env.BUILD_NUMBER} – SUCCESS – ${env.JOB_NAME}",
-                body:    "Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER} succeeded.\n\nView: ${env.BUILD_URL}"
-            )
         }
         failure {
             echo '🚨 Pipeline failed!'
-            mail(
-                to:      'team@example.com',
-                subject: "❌ [Jenkins] Build #${env.BUILD_NUMBER} – FAILED – ${env.JOB_NAME}",
-                body:    "Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER} FAILED.\n\nView: ${env.BUILD_URL}"
-            )
         }
     }
 }
