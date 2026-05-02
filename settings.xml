@@ -16,14 +16,14 @@
     <server>
       <id>nexus-releases</id>
       <username>admin</username>
-      <password>${env.NEXUS_PASSWORD}</password>  <!-- Set as Jenkins env variable -->
+      <password>aziz1234</password>  <!-- Set as Jenkins env variable -->
     </server>
 
     <!-- Nexus Snapshots – must match pom.xml <snapshotRepository><id>nexus-snapshots</id> -->
     <server>
       <id>nexus-snapshots</id>
       <username>admin</username>
-      <password>${env.NEXUS_PASSWORD}</password>
+      <password>aziz1234</password>
     </server>
   </servers>
 

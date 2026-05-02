@@ -25,6 +25,16 @@ pipeline {
     }
 
     stages {
+        stage('Initialize') {
+            steps {
+                withCredentials([string(credentialsId: 'nexus-credentials', variable: 'NEXUS_PASSWORD')]) {
+                    script {
+                        // This makes the password available for the whole pipeline session
+                        env.NEXUS_PASSWORD = NEXUS_PASSWORD
+                    }
+                }
+            }
+        }
 
         // ── 1. Checkout ──────────────────────────────────────────────────
         stage('Checkout') {
@@ -83,27 +93,25 @@ pipeline {
         stage('Publish Artifact – Nexus') {
             steps {
                 echo '📦 Publishing JAR to Nexus...'
-                withCredentials([string(credentialsId: 'nexus-credentials', variable: 'NEXUS_PASSWORD')]) {
-                    script {
-                        def pom       = readMavenPom file: 'pom.xml'
-                        def artifactPath = "target/${pom.artifactId}-${pom.version}.jar"
+                script {
+                    def pom       = readMavenPom file: 'pom.xml'
+                    def artifactPath = "target/${pom.artifactId}-${pom.version}.jar"
 
-                        nexusArtifactUploader(
-                            nexusVersion:  env.NEXUS_VERSION,
-                            protocol:      env.NEXUS_PROTOCOL,
-                            nexusUrl:      env.NEXUS_URL,
-                            groupId:       pom.groupId,
-                            version:       pom.version,
-                            repository:    env.NEXUS_REPO,
-                            credentialsId: env.NEXUS_CREDENTIAL,
-                            artifacts: [[
-                                artifactId: pom.artifactId,
-                                classifier: '',
-                                file:       artifactPath,
-                                type:       'jar'
-                            ]]
-                        )
-                    }
+                    nexusArtifactUploader(
+                        nexusVersion:  env.NEXUS_VERSION,
+                        protocol:      env.NEXUS_PROTOCOL,
+                        nexusUrl:      env.NEXUS_URL,
+                        groupId:       pom.groupId,
+                        version:       pom.version,
+                        repository:    env.NEXUS_REPO,
+                        credentialsId: env.NEXUS_CREDENTIAL,
+                        artifacts: [[
+                            artifactId: pom.artifactId,
+                            classifier: '',
+                            file:       artifactPath,
+                            type:       'jar'
+                        ]]
+                    )
                 }
             }
         }
