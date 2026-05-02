@@ -4,7 +4,7 @@ pipeline {
     // ── Tool aliases configured in Jenkins → Global Tool Configuration ──
     tools {
         maven 'Maven-3'
-        jdk   'JDK-8'
+        jdk   'JDK-21'
     }
 
     environment {
