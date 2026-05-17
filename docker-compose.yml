@@ -16,4 +16,5 @@ services:
 
 networks:
   devops-net:
+    name: achat_devops-net
     external: true
