@@ -122,6 +122,14 @@ pipeline {
             }
         }
 
+        // ── 7.5. Trivy Security Scan ──────────────────────────────────────
+        stage('Trivy Security Scan') {
+            steps {
+                echo '🛡️ Scanning Docker image for vulnerabilities with Trivy...'
+                sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --scanners vuln achat-app:latest'
+            }
+        }
+
         // ── 8. Docker Push ────────────────────────────────────────────────
         stage('Docker Push') {
             steps {
