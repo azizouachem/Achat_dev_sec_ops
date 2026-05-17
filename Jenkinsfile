@@ -94,21 +94,18 @@ pipeline {
             steps {
                 echo '📦 Publishing JAR to Nexus...'
                 script {
-                    def pom       = readMavenPom file: 'pom.xml'
-                    def artifactPath = "target/${pom.artifactId}-${pom.version}.jar"
-
                     nexusArtifactUploader(
                         nexusVersion:  env.NEXUS_VERSION,
                         protocol:      env.NEXUS_PROTOCOL,
                         nexusUrl:      env.NEXUS_URL,
-                        groupId:       pom.groupId,
-                        version:       pom.version,
+                        groupId:       'tn.esprit.rh',
+                        version:       '1.0',
                         repository:    env.NEXUS_REPO,
                         credentialsId: env.NEXUS_CREDENTIAL,
                         artifacts: [[
-                            artifactId: pom.artifactId,
+                            artifactId: 'achat',
                             classifier: '',
-                            file:       artifactPath,
+                            file:       'target/achat-1.0.jar',
                             type:       'jar'
                         ]]
                     )
