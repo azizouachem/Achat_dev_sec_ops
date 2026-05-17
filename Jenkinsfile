@@ -125,7 +125,8 @@ pipeline {
         // ── 8. Docker Push ────────────────────────────────────────────────
         stage('Docker Push') {
             steps {
-                echo '📤 Pushing Docker image to registry...'
+                echo '📤 Skipping Docker push (deploying locally on same host)...'
+                /*
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-registry-credentials',
                     usernameVariable: 'DOCKER_USER',
@@ -135,6 +136,7 @@ pipeline {
                     sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
                     sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest"
                 }
+                */
             }
         }
 
