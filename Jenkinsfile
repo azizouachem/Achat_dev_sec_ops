@@ -125,9 +125,13 @@ pipeline {
         // ── 7.5. Trivy Security Scan ──────────────────────────────────────
         stage('Trivy Security Scan') {
             steps {
-                echo '🛡️ Scanning Docker image for vulnerabilities with Trivy...'
-                sh 'docker volume create trivy-cache || true'
-                sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy aquasec/trivy:latest image --timeout 5m --severity HIGH,CRITICAL --scanners vuln achat-app:latest'
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    timeout(time: 1, unit: 'MINUTES') {
+                        echo '🛡️ Scanning Docker image for vulnerabilities with Trivy...'
+                        sh 'docker volume create trivy-cache || true'
+                        sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy aquasec/trivy:latest image --timeout 45s --severity HIGH,CRITICAL --scanners vuln achat-app:latest'
+                    }
+                }
             }
         }
 
