@@ -126,7 +126,8 @@ pipeline {
         stage('Trivy Security Scan') {
             steps {
                 echo '🛡️ Scanning Docker image for vulnerabilities with Trivy...'
-                sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --scanners vuln achat-app:latest'
+                sh 'docker volume create trivy-cache || true'
+                sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy aquasec/trivy:latest image --timeout 5m --severity HIGH,CRITICAL --scanners vuln achat-app:latest'
             }
         }
 
