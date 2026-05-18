@@ -1,6 +1,5 @@
 package tn.esprit.rh.achat.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,9 +27,6 @@ class OperateurControllerTest {
 
     @MockBean
     private IOperateurService operateurService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Test
     void testGetOperateurs() throws Exception {
@@ -74,22 +70,24 @@ class OperateurControllerTest {
 
         when(operateurService.addOperateur(any(Operateur.class))).thenReturn(op);
 
+        // We use a raw JSON string because 'password' has @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+        // which prevents Jackson from serializing it during objectMapper.writeValueAsString() in tests.
+        String rawJson = "{\"nom\":\"John\",\"prenom\":\"Doe\",\"password\":\"securePassword123\"}";
+
         mockMvc.perform(post("/operateur/add-operateur")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(op)))
+                .content(rawJson))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testAddOperateurValidationFailure() throws Exception {
-        Operateur op = new Operateur();
-        op.setNom(""); // Blank name violates validation constraint
-        op.setPrenom("Doe");
-        op.setPassword("12"); // Too short password violates validation constraint
+        // Blank name (violates @NotBlank) and too short password (violates @Size)
+        String rawJson = "{\"nom\":\"\",\"prenom\":\"Doe\",\"password\":\"12\"}";
 
         mockMvc.perform(post("/operateur/add-operateur")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(op)))
+                .content(rawJson))
                 .andExpect(status().isBadRequest()); // Captured by GlobalExceptionHandler
     }
 
@@ -106,15 +104,19 @@ class OperateurControllerTest {
     @Test
     void testModifyOperateur() throws Exception {
         Operateur op = new Operateur();
+        op.setIdOperateur(1L);
         op.setNom("John");
         op.setPrenom("Doe");
         op.setPassword("securePassword123");
 
         when(operateurService.updateOperateur(any(Operateur.class))).thenReturn(op);
 
+        // Explicit JSON to ensure 'password' field is passed successfully
+        String rawJson = "{\"idOperateur\":1,\"nom\":\"John\",\"prenom\":\"Doe\",\"password\":\"securePassword123\"}";
+
         mockMvc.perform(put("/operateur/modify-operateur")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(op)))
+                .content(rawJson))
                 .andExpect(status().isOk());
     }
 }
