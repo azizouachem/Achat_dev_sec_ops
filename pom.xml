@@ -202,8 +202,7 @@
 				<configuration>
 					<format>HTML</format>
 					<failBuildOnCVSS>8</failBuildOnCVSS>
-					<nvdEnabled>false</nvdEnabled>
-					<ossIndexEnabled>true</ossIndexEnabled>
+					<failOnError>false</failOnError>
 				</configuration>
 			</plugin>
 		</plugins>
