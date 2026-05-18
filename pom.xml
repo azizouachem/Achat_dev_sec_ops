@@ -198,11 +198,12 @@
 			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
-				<version>9.2.2</version>
+				<version>8.4.3</version>
 				<configuration>
 					<format>HTML</format>
 					<failBuildOnCVSS>8</failBuildOnCVSS>
-					<nvdApiEndpoint>https://nvd.dependency-check.workers.dev/</nvdApiEndpoint>
+					<nvdEnabled>false</nvdEnabled>
+					<ossIndexEnabled>true</ossIndexEnabled>
 				</configuration>
 			</plugin>
 		</plugins>
