@@ -70,6 +70,22 @@ pipeline {
             }
         }
 
+        // ── 3.5. OWASP Dependency-Check ──────────────────────────────────
+        stage('OWASP Dependency-Check') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    echo '🛡️ Running OWASP Dependency-Check (A06: Vulnerable Components)...'
+                    sh 'mvn -s settings.xml org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=8'
+                }
+            }
+            post {
+                always {
+                    // Archive the dependency-check report
+                    archiveArtifacts artifacts: 'target/dependency-check-report.html', allowEmptyArchive: true
+                }
+            }
+        }
+
         // ── 4. SonarQube Analysis ─────────────────────────────────────────
         stage('Code Quality – SonarQube') {
             steps {
