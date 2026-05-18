@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.rh.achat.entities.Operateur;
+import tn.esprit.rh.achat.dto.OperateurDTO;
 import tn.esprit.rh.achat.services.IOperateurService;
 
 import javax.validation.Valid;
@@ -32,10 +33,14 @@ public class OperateurController {
 		return operateurService.retrieveOperateur(operateurId);
 	}
 
-	// http://localhost:8089/SpringMVC/operateur/add-operateur
 	@PostMapping("/add-operateur")
 	@ResponseBody
-	public Operateur addOperateur(@Valid @RequestBody Operateur op) {
+	public Operateur addOperateur(@Valid @RequestBody OperateurDTO opDTO) {
+		Operateur op = new Operateur();
+		op.setIdOperateur(opDTO.getIdOperateur());
+		op.setNom(opDTO.getNom());
+		op.setPrenom(opDTO.getPrenom());
+		op.setPassword(opDTO.getPassword());
 		Operateur operateur = operateurService.addOperateur(op);
 		return operateur;
 	}
@@ -47,11 +52,15 @@ public class OperateurController {
 		operateurService.deleteOperateur(operateurId);
 	}
 
-	// http://localhost:8089/SpringMVC/operateur/modify-operateur
 	@PutMapping("/modify-operateur")
 	@ResponseBody
-	public Operateur modifyOperateur(@Valid @RequestBody Operateur operateur) {
-		return operateurService.updateOperateur(operateur);
+	public Operateur modifyOperateur(@Valid @RequestBody OperateurDTO opDTO) {
+		Operateur op = new Operateur();
+		op.setIdOperateur(opDTO.getIdOperateur());
+		op.setNom(opDTO.getNom());
+		op.setPrenom(opDTO.getPrenom());
+		op.setPassword(opDTO.getPassword());
+		return operateurService.updateOperateur(op);
 	}
 
 	
